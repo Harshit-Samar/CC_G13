@@ -28,7 +28,7 @@ Moreover, it also handles the following cases:
 //cycle detection for cyclic dependencies
 unordered_map<string, string> hash_table;
 unordered_set<string> encountered;
-vector<int> flagIf;
+int flagIf = 0;
 bool detectcycle(string key)
 {
     unordered_set<string> visited;
@@ -173,7 +173,7 @@ bool detectcycle(string key)
 "#ifdef " {
     string key;
     //finding the key
-    cout<<"ifdef size = "<<flagIf.size()<<endl;
+    // cout<<"ifdef size = "<<flagIf.size()<<endl;
 
     while(1){
         char c = yyinput();  //finding the key
@@ -183,11 +183,10 @@ bool detectcycle(string key)
         key.push_back(c);        
     }
     if(hash_table.find(key) != hash_table.end()){
-        flagIf.push_back(1);
+        flagIf = 1;
 
     }
     else{
-        flagIf.push_back(0);
         char prev = yyinput();
         while(1){
             char curr = yyinput();
@@ -211,9 +210,9 @@ bool detectcycle(string key)
 
     string key;
     //finding the key
-    cout<<"elif = "<<flagIf[flagIf.size()-1]<<endl;
+    // cout<<"elif = "<<flagIf[flagIf.size()-1]<<endl;
 
-    if(flagIf[flagIf.size()-1] == 0){
+    if(flagIf == 0){
         while(1){
             char c = yyinput();  //finding the key
             if(c == '\n')
@@ -221,7 +220,7 @@ bool detectcycle(string key)
             key.push_back(c);        
         }
         if(hash_table.find(key) != hash_table.end()){
-            flagIf[flagIf.size()-1] = 1;
+            flagIf = 1;
         }
         else{
             char prev = yyinput();
@@ -257,8 +256,8 @@ bool detectcycle(string key)
 }
 
 "#else" {
-    cout<<"else = "<<flagIf[flagIf.size()-1]<<endl;
-    if(flagIf[flagIf.size()-1] == 1){
+    // cout<<"else = "<<flagIf[flagIf.size()-1]<<endl;
+    if(flagIf == 1){
         char prev = yyinput();
         while(1){
             char curr = yyinput();
@@ -273,12 +272,12 @@ bool detectcycle(string key)
         }
     }
     else{
-        flagIf[flagIf.size()-1] = 1;
+        flagIf = 1;
     }
 }
 
 "#endif" {
-    flagIf.pop_back();
+    flagIf = 0;
 } 
 
 
@@ -295,11 +294,10 @@ bool detectcycle(string key)
 "="                                 { return TEQUAL; }
 "dbg"                               { return TDBG; }
 "let"                               { return TLET; }
-"\x00"                                {cout<<"Hi NULL"<<endl;}
 [0-9]+                              { 
         yylval.lexeme = string(yytext); 
         return TINT_LIT; 
-}
+        }
 [a-zA-Z]+[a-zA-Z0-9]*    { 
         yylval.lexeme = string(yytext); 
         //cout<<"yytext = "<<endl;
@@ -326,7 +324,6 @@ bool detectcycle(string key)
         } 
     }
 [ \t\n]                             { /* skip */ }
-[[EOF]]                       {printf("BYE\n");}
 .                                   { yyerror("unknown char"); }
 
 %%
