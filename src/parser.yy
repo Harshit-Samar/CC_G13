@@ -28,7 +28,8 @@ extern NodeStmts* final_values;
 NodeBinOp *help;
 int flag = 0;
 SymbolTable symbol_table;
-// SymbolTableForFunction symbol_table_func;
+FunctionSymbolTable symbol_table_func;
+
 std::set<std::string> curr;
 int yyerror(std::string msg);
 long postorder(Node* node);
@@ -164,15 +165,19 @@ Stmt : TLET TIDENT TCOLON Type TEQUAL Expr TSCOL
             yyerror("tried to assign to undeclared variable.\n");
         }
      }
-     | TFUN TIDENT TLPAREN ArgList TRPAREN TCOLON Type TLBRACE Program TRBRACE TSCOL
+     | TFUN TIDENT TLPAREN ArgList TRPAREN TCOLON Type TLBRACE StmtList2 TRBRACE
      {
-        // if(symbol_table_func.contains($2)) {
-        //     // tried to redeclare function, so error
-        //     yyerror("tried to redeclare function.\n");
-        // } else {
-        //     symbol_table_func.insert($2, $4, $7);
-        //     $$ = new NodeFunc($2, $4, $7, $9);
-        // }
+        if(symbol_table_func.contains($2)) {
+            // tried to redeclare function, so error
+            yyerror("tried to redeclare function.\n");
+        } else {
+            // for(int i = 0; i < $4->list.size(); i++) {
+            //     printf("!arg type: %d\n", $4->list[i]->lit_type);
+            // }
+            $$ = new NodeFunc($2, $4, $7, $9);
+            symbol_table_func.insert($2, $4->list);
+            
+        }
 
          
      }
@@ -233,8 +238,10 @@ Expr : TINT_LIT
      } 
      | TIDENT
      { 
-        if(symbol_table.contains($1))
+        if(symbol_table.contains($1)){
+            printf("Type = %d\n", symbol_table.get($1));
             $$ = new NodeIdent($1, symbol_table.get($1));
+        }
         else
             yyerror("using undeclared variable.\n");
 
@@ -393,7 +400,22 @@ Expr : TINT_LIT
         $$ = $2; } 
      | TIDENT TLPAREN ParamList TRPAREN
      {
-        if(symbol_table.contains($1)) {
+        if(symbol_table_func.contains($1)) {
+            std::vector<Node*> args = symbol_table_func.get($1);
+            std::vector<Node*> params = $3->list;
+            if(args.size() != params.size()) {
+                yyerror("number of arguments does not match number of parameters.\n");
+            }
+            for(int i = 0; i < args.size(); i++) {
+                // printf("arg type: %d\n", args[i]->lit_type);
+                // printf("param type: %d\n", params[i]->lit_type);
+                if(args[i]->lit_type == Node::SHORT && params[i]->lit_type != Node::SHORT) {
+                    yyerror("type mismatch in arguments.\n");
+                }
+                if(args[i]->lit_type == Node::INT && params[i]->lit_type == Node::LONG) {
+                    yyerror("type mismatch in arguments.\n");
+                }
+            }
             $$ = new NodeFuncCall($1, $3, symbol_table.get($1));
         } else {
             yyerror("tried to call undeclared function.\n");
