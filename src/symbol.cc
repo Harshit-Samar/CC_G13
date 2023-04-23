@@ -12,15 +12,14 @@ int SymbolTable::get(std::string key) {
     return table[key];
 }
 
-// bool SymbolTableForFunction::contains(std::string key) {
-//     return table.find(key) != table.end();
-// }
+bool FunctionSymbolTable::contains(std::string key) {
+    return table.find(key) != table.end();
+}
 
-// void SymbolTableForFunction::insert(std::string key,Node* value, int type) {
-//    std:: pair<Node*,int> p =std::make_pair(value,type);
-//     table[key] = p;
-// }
+void FunctionSymbolTable::insert(std::string key, std::vector<Node*> nodes) {
+    table[key] = nodes;
+}
 
-// std:: pair<Node*,int> SymbolTableForFunction::get(std::string key) {
-//     return table[key];
-// }
+std::vector<Node*> FunctionSymbolTable::get(std::string key) {
+    return table[key];
+}
