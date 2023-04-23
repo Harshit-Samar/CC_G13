@@ -14,12 +14,12 @@ struct SymbolTable {
     void insert(std::string key, int value);
     int get(std::string key);
 };
-// struct SymbolTableForFunction {
-//     std::map<std::string, std::pair<Node*,int>> table;
+struct FunctionSymbolTable {
+    std::map<std::string, std::vector<Node*>> table;
 
-//     bool contains(std::string key);
-//     void insert(std::string key, Node* value, int type);
-//      std:: pair<Node*,int> get(std::string key);
-// };
+    bool contains(std::string key);
+    void insert(std::string key, std::vector<Node*> nodes);
+    std::vector<Node*> get(std::string key);
+};
 
 #endif
